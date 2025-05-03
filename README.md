@@ -1,0 +1,1 @@
+# Digit Recognizer for Arduino Nano 33 BLE with Zephyr
