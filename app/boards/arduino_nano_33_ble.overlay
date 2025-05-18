@@ -1,0 +1,36 @@
+/ {
+    chosen {
+        zephyr,camera = &camera0;
+        zephyr,console = &usb_uart;
+    };
+};
+
+&arduino_nano_serial {
+    status = "okay";
+};
+
+&arduino_spi {
+    status = "okay";
+
+    cs-gpios = <&gpio0 23 GPIO_ACTIVE_LOW>;
+
+    camera0: arducam_ov2640@0 {
+        compatible = "arducam,ov2640";
+        reg = <0>;
+        spi-max-frequency = <4000000>;
+        control-bus = <&i2c0 0x30>;
+        clock-rate-control = <0x87>;
+    };
+};
+
+&arduino_i2c {
+    status = "okay";
+};
+
+&zephyr_udc0 {
+    usb_uart: cdc_acm_uart0 {
+        compatible = "zephyr,cdc-acm-uart";
+        label = "Zephyr USB CDC-ACM";
+        status = "okay";
+    };
+};
