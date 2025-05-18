@@ -1,0 +1,30 @@
+description: ArduCam OV2640 video sensor
+
+compatible: "arducam,ov2640"
+
+on-bus: spi
+
+include: ["spi-device.yaml"]
+
+properties:
+  control-bus:
+    type: phandle-array
+    specifier-space: size
+    required: true
+    description: |
+      Reference to I2C controller the camera is connected to.
+
+  clock-rate-control:
+    type: int
+    default: 0x87
+    description: |
+      Define the value to the Clock Rate Control register. By changing
+      the system clock divide ratio and PLL, the frame rate and pixel
+      rate will change together.
+      Bit[7]    Internal frequency doublers ON/OFF selection.
+                0: ON       1: OFF
+      Bit[6]    Reserved
+      Bit[5:0]  Clock divider.
+
+      CLK = XVCLK /(decimal value of CLKRC[5:0] + 1)
+

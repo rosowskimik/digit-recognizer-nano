@@ -1,0 +1,24 @@
+config ARDUCAM
+    bool "ArduCam OV2640 Camera"
+    default y
+    depends on DT_HAS_ARDUCAM_OV2640_ENABLED
+    select I2C
+    select SPI
+    help
+        Enable ArduCam OV2640 camera driver
+
+if ARDUCAM
+
+config ARDUCAM_CAPTURE_THREAD_STACK_SIZE
+    int "Stack size for the frame capture thread stack"
+    default 1024
+    help
+        Size of the stack used for the internal frame capture thread.
+
+config ARDUCAM_CAPTURE_THREAD_PRIO
+    int "Priority for the frame capture thread"
+    default 0
+    help
+        Priority level for the internal frame capture thread.
+
+endif
