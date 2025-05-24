@@ -13,4 +13,4 @@ include_directories(include)
 file(GLOB_RECURSE app_sources src/*.c
                               src/*.cpp)
 
-target_sources(app PRIVATE src/main.c)
+target_sources(app PRIVATE ${app_sources})
