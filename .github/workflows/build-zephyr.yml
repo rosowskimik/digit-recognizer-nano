@@ -1,0 +1,48 @@
+name: "Build Zephyr application"
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ZEPHYR_SDK_INSTALL_DIR: /opt/toolchains
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/zephyrproject-rtos/ci:v0.27.5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup West workspace
+        run: |
+          west init -l .
+          west update
+
+      - name: Build (arduino_nano_33_ble)
+        run: |
+          west build -b arduino_nano_33_ble app
+
+      - name: Generate memory-usage report
+        run: |
+          west build -t footprint
+
+      - name: Upload firmware and size reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: zephyr-build-output
+          path: |
+            build/zephyr/zephyr.bin
+            build/ram.json
+            build/rom.json
+          if-no-files-found: error
