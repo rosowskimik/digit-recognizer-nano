@@ -50,7 +50,7 @@ int main(void)
 			return 0;
 		}
 
-		LOG_INF("Got frame! size: %u; timestamp %u ms", vbuf->bytesused, vbuf->timestamp);
+		LOG_DBG("Got frame! size: %u; timestamp %u ms", vbuf->bytesused, vbuf->timestamp);
 
 		/* Skip 1st empty byte */
 		prepare_mnist_input(&vbuf->buffer[1], mnist);
@@ -59,7 +59,7 @@ int main(void)
 			continue;
 		};
 
-		LOG_INF("Prediction: %u (confidence: %u/255)", pred.value, pred.confidence);
+		LOG_INF("Prediction: %u (confidence: %03u/255)", pred.value, pred.confidence);
 
 		/* Don't spam the console */
 		k_sleep(K_SECONDS(1));

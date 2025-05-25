@@ -5,10 +5,6 @@
     };
 };
 
-&arduino_nano_serial {
-    status = "okay";
-};
-
 &arduino_spi {
     status = "okay";
 
@@ -18,7 +14,7 @@
         compatible = "arducam,ov2640";
         reg = <0>;
         spi-max-frequency = <4000000>;
-        control-bus = <&i2c0 0x30>;
+        control-bus = <&arduino_i2c 0x30>;
         clock-rate-control = <0x87>;
     };
 };

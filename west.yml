@@ -13,5 +13,5 @@ manifest:
           - hal_nordic
     - name: tflite-micro
       remote: zephyrproject-rtos
-      path: modules/ftlite-micro
+      path: modules/tflite-micro
       revision: 8d404de73acf7687831e16d88e86e4f73cfddf8e

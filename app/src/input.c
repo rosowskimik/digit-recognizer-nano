@@ -16,7 +16,7 @@ void prepare_mnist_input(const uint8_t *rgb565, uint8_t *mnist)
 
 			uint8_t r5 = (pxl >> 11) & 0x1F;
 			uint8_t g6 = (pxl >> 5) & 0x3F;
-			uint8_t b5 = (pxl >> 11) & 0x1F;
+			uint8_t b5 = pxl & 0x1F;
 
 			uint8_t r = (r5 << 3) | (r5 >> 2);
 			uint8_t g = (g6 << 2) | (g6 >> 4);
