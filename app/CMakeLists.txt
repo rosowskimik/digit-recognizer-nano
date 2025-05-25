@@ -11,6 +11,8 @@ zephyr_compile_options($<$<COMPILE_LANGUAGE:CXX>:${NO_THREADSAFE_STATICS}>)
 include_directories(include)
 
 file(GLOB_RECURSE app_sources src/*.c
-                              src/*.cpp)
+                              src/*.h
+                              src/*.cpp
+                              src/*.hpp)
 
 target_sources(app PRIVATE ${app_sources})
