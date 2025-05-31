@@ -164,6 +164,8 @@ LOG_MODULE_REGISTER(arducam, CONFIG_VIDEO_LOG_LEVEL);
 #define UXGA_HSIZE (1600)
 #define UXGA_VSIZE (1200)
 
+#define QQVGA_RGB565_BUFSIZE (QQVGA_HSIZE * QQVGA_VSIZE * 2)
+
 /* Arducam SPI interface */
 #define ARDUCHIP_TEST1      0x00 /* constant 0x55 when silicon OK */
 #define ARDUCHIP_FIFO       0x04
@@ -528,7 +530,7 @@ static int arducam_spi_read(const struct device *dev, uint8_t reg, uint8_t *val)
 
 	struct spi_buf tx_buf = {.buf = &tx, .len = 1};
 	struct spi_buf rx_bufs[3] = {
-		{.buf = NULL, .len = 1}, /* throw‑away */
+		{.buf = &tx, .len = 1}, /* throw‑away */
 		{.buf = val, .len = 1},
 	};
 	struct spi_buf_set txs = {.buffers = &tx_buf, .count = 1};
@@ -555,12 +557,13 @@ static int arducam_spi_burst_read(const struct device *dev, uint8_t *dst, size_t
 
 	uint8_t cmd = BURST_FIFO_READ;
 	struct spi_buf tx_buf = {.buf = &cmd, .len = 1};
-	struct spi_buf rx_bufs[2] = {
-		{.buf = NULL, .len = 1},
-		{.buf = dst, .len = len},
+	struct spi_buf rx_bufs[] = {
+		{.buf = &cmd, .len = 1},
+		{.buf = &cmd, .len = 1},
+		{.buf = dst, .len = QQVGA_RGB565_BUFSIZE},
 	};
 	struct spi_buf_set txs = {.buffers = &tx_buf, .count = 1};
-	struct spi_buf_set rxs = {.buffers = rx_bufs, .count = 2};
+	struct spi_buf_set rxs = {.buffers = rx_bufs, .count = 3};
 
 	return spi_transceive_dt(&cfg->spi, &txs, &rxs);
 }
@@ -777,6 +780,11 @@ static int arducam_capture_single(const struct device *dev, struct video_buffer 
 		LOG_ERR("FIFO empty");
 		return -EIO;
 	}
+	if (len < QQVGA_RGB565_BUFSIZE) {
+		LOG_ERR("FIFO not full");
+		return -EIO;
+	}
+
 	/* 5. Burst‑read into provided buffer */
 	ret = arducam_spi_burst_read(dev, buf->buffer, len);
 	if (ret) {
@@ -784,7 +792,7 @@ static int arducam_capture_single(const struct device *dev, struct video_buffer 
 		return ret;
 	}
 
-	buf->bytesused = len;
+	buf->bytesused = QQVGA_RGB565_BUFSIZE;
 	buf->timestamp = k_ticks_to_us_floor64(k_uptime_ticks());
 
 	return ret;
