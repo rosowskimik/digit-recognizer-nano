@@ -1,18 +1,24 @@
+#include <stdint.h>
+#include <zephyr/sys/byteorder.h>
+#include <zephyr/sys/util.h>
+
 #include "camera.h"
 #include "input.h"
 
 void prepare_mnist_input(const uint8_t *rgb565, uint8_t *mnist)
 {
-	const float sx = (float)FRAME_WIDTH / MNIST_WIDTH;
-	const float sy = (float)FRAME_HEIGHT / MNIST_HEIGHT;
+	for (uint8_t oy = 0; oy < MNIST_HEIGHT; ++oy) {
+		for (uint8_t ox = 0; ox < MNIST_WIDTH; ++ox) {
+			/* Rotate 90 degrees right */
+			int iy = FRAME_HEIGHT - 1 - ((ox * FRAME_HEIGHT) / MNIST_WIDTH);
+			iy = CLAMP(iy, 0, FRAME_HEIGHT - 1);
 
-	for (int y = 0; y < MNIST_HEIGHT; ++y) {
-		const int ys = (int)(y * sy * 0.5f);
-		const uint16_t *sp = (const uint16_t *)rgb565 + ys * FRAME_WIDTH;
+			int ix = (oy * FRAME_WIDTH) / MNIST_HEIGHT;
+			ix = CLAMP(ix, 0, FRAME_WIDTH - 1);
 
-		for (int x = 0; x < MNIST_HEIGHT; ++x) {
-			const int xs = (int)(x * sx * 0.5f);
-			const uint16_t pxl = sp[xs];
+			// Get the 16-bit RGB565 pixel from the input buffer at (ix, iy)
+			const uint8_t *pxl_ptr = rgb565 + (iy * FRAME_WIDTH + ix) * 2;
+			uint16_t pxl = sys_be16_to_cpu(*(const uint16_t *)pxl_ptr);
 
 			uint8_t r5 = (pxl >> 11) & 0x1F;
 			uint8_t g6 = (pxl >> 5) & 0x3F;
@@ -24,7 +30,9 @@ void prepare_mnist_input(const uint8_t *rgb565, uint8_t *mnist)
 
 			uint8_t gray = (uint8_t)((38 * r + 75 * g + 15 * b) >> 7);
 
-			mnist[y * MNIST_WIDTH + x] = (255 - gray);
+			gray = gray >= 95 ? 0 : 255;
+
+			mnist[oy * MNIST_WIDTH + ox] = gray;
 		}
 	}
 }

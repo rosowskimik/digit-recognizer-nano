@@ -52,8 +52,7 @@ int main(void)
 
 		LOG_DBG("Got frame! size: %u; timestamp %u ms", vbuf->bytesused, vbuf->timestamp);
 
-		/* Skip 1st empty byte */
-		prepare_mnist_input(&vbuf->buffer[1], mnist);
+		prepare_mnist_input(vbuf->buffer, mnist);
 
 		if (run_prediction(&pred)) {
 			continue;
