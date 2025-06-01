@@ -2,6 +2,7 @@
     chosen {
         zephyr,camera = &camera0;
         zephyr,console = &usb_uart;
+        zephyr,display = &oled_display;
     };
 };
 
@@ -21,6 +22,21 @@
 
 &arduino_i2c {
     status = "okay";
+    zephyr,concat-buf-size = <256>;
+
+    oled_display: ssd1306@3c {
+	compatible = "sinowealth,sh1106";
+	reg = <0x3c>;
+	width = <128>;
+	height = <64>;
+	segment-offset = <2>;
+	page-offset = <0>;
+	display-offset = <0>;
+	multiplex-ratio = <63>;
+	prechargep = <0x22>;
+	segment-remap;
+	com-invdir;
+    };
 };
 
 &zephyr_udc0 {
